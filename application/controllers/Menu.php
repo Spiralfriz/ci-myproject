@@ -31,17 +31,18 @@ class Menu extends MY_Controller {
     
     public function add()
     {
-        //$this->load->helper('form', 'url');
-        //$this->load->library('form_validation');
         $this->form_validation->set_rules('name', 'name', 'trim|required|min_length[3]|is_unique[mp_menu.name]');
 
         if (! $this->form_validation->run())
         {
-            $data = [];
+            $data['roles'] = Role_model::getRoles();
+            //$this->_debug($data);
             return $this->load->template('admin/menu/add', $data, TRUE);
         }
 
-        $this->_debug($_POST);
+        $this->menu_model->insertWithChild($this->input->post());
+
+        //$this->_debug($_POST);
         die('form is valide !');
     }
     

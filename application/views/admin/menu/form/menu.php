@@ -1,27 +1,22 @@
 <?php
-$roles = [
-    1 => 'SUPER_ADMIN',
-    2 => 'ADMIN',
-    3 => 'USER'
-];
-
 echo form_open('menu/add', ['id' => 'menu']);
 
 echo '<div class="form-group">';
     echo form_label('Name : ');
-    echo form_input(['name' => 'name', 'value' => set_value('name'), 'class' => 'form-control']);
+    echo form_input(['name' => 'name', 'value' => set_value('name'), 'class' => 'form-control', 'required' => 'required']);
     echo form_error('name', ' <span class="help-block">', '</span>');
 echo '</div>';
 
 echo '<div class="form-group">';
     echo form_button(['name' => 'add_item', 'class' => 'btn btn-success'], 'Add item');
 echo '</div>';
-
 ?>
 <div id="item-content" class="hidden">
     <div class="form-group">
         <div class="input-group" data-ref="0">
-            <input type="text" name="item[][name]" class="form-control menu-item" required="required">
+            <input type="text" name="menu_item[][name]" class="form-control menu-item" required disabled placeholder="Name">
+            <!--<input type="text" name="menu_item[item][name][]" class="form-control menu-item" required disabled placeholder="Name">
+            <input type="text" name="menu_item[item][url][]" class="form-control menu-item url" required disabled placeholder="Url (ex : menu/add)" style="flex-basis: 20em;">-->
             <span class="input-group-btn">
                 <button type="button" name="delete_item" class="btn btn-danger">
                     <span class="fa fa-remove"></span>
@@ -36,7 +31,7 @@ echo '</div>';
                 if(isset($roles)) {
                     foreach($roles as $id => $name) {
                         echo ' <div class="checkbox" style="margin-left: 10px;">
-                            <label><input type="checkbox" name="" value="'.$id.'">&nbsp;'.$name.'</label>
+                            <label><input type="checkbox" name="menu_permission[]" value="'.$id.'">&nbsp;'.$name.'</label>
                         </div>';
                     }
                 }
@@ -47,7 +42,7 @@ echo '</div>';
 </div>
 <?php
 echo '<div class="form-group" style="text-align: right;">';
-    echo form_submit(['name' => 'menu', 'class' => 'btn btn-primary'], 'Save');
+    echo form_submit(['class' => 'btn btn-primary'], 'Save');
 echo '</div>';
 
 echo form_close();
@@ -61,7 +56,7 @@ echo form_close();
     "use strict";
 
     $(function () {
-        var inc = 0;
+        var inc = 0; // inc for input generated
         var $item = $('#item-content'); // global selector
         var template = $item.html(); //copy inside div#item-content
 
@@ -69,6 +64,7 @@ echo form_close();
         $('button[name="add_item"]').on('click', function () {
             createElement();
             $item.removeClass('hidden');
+            $('.menu-item').removeAttr('disabled');
         });
 
         $(document).on('click', 'button[name="delete_item"]', function () {
@@ -78,21 +74,14 @@ echo form_close();
         $(document).on('change', 'form#menu :checkbox', function () {
             if ($(this).is(':checked')) {
 
-               var ref =  $(this)
-                    .closest( ".form-group").children().attr('data-ref');
+                var ref =  $(this)
+                    .closest( ".form-group").children().attr('data-ref'); // add num on input-group
 
-               $(this).attr('name', 'item['+ref+'][role-'+$(this).val()+']');
-
-             //console.log(ref);
-
+                $(this).attr('name', 'menu_permission['+ref+'][]'); // group by menu_item
             } else {
-                //console.log($(this).val() + ' is now unchecked');
-
-               // $(this).attr('name', 'item['+inc+']['+$(this).value+']');
+                $(this).attr('name', 'menu_permission[]');
             }
         });
-
-
 
         // Functions
         function createElement()
@@ -100,7 +89,7 @@ echo form_close();
             if(inc > 0) {
 
                 $item.append(template); // duplicated template
-                $('#item-content div:last-child .input-group').attr('data-ref', inc);
+                $('#item-content div:last-child .input-group').attr('data-ref', inc); // set the reference item
             }
 
             inc++;
@@ -111,9 +100,21 @@ echo form_close();
             if(inc > 0)
             {
                 $btn.closest('div').remove();
+                setReferences(); // rearranges the reference item
             }
 
             inc--;
+        }
+
+        function setReferences()
+        {
+            var $input = $('#item-content .input-group');
+            var i = 0;
+
+            $input.each(function() {
+                $(this).attr('data-ref', i);
+                i++;
+            });
         }
     });
 </script>

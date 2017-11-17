@@ -11,9 +11,9 @@ class Role_model extends CI_Model
     const AUTHOR = 5;
     const CONTRIBUTOR = 6;
     
-    public static function getRole($role)
+    public static function getRole($role_id)
     {
-        switch($role)
+        switch($role_id)
         {
             case self:SUPER_ADMIN: 
                 $res = 'Super Admin';
@@ -39,5 +39,17 @@ class Role_model extends CI_Model
         }
         
         return $res;
+    }
+
+    public static function getRoles()
+    {
+        return [
+            self::SUPER_ADMIN => 'SUPER_ADMIN',
+            self::ADMIN => 'ADMIN',
+            self::USER => 'USER',
+            self::EDITOR => 'EDITOR',
+            self::AUTHOR => 'AUTHOR',
+            self::CONTRIBUTOR => 'CONTRIBUTOR'
+        ];
     }
 }
